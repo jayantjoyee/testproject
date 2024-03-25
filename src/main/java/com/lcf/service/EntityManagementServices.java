@@ -25,7 +25,13 @@ public class EntityManagementServices {
     private EntityBuilderService entityBuilderService;
 
     @Autowired
+    private GroovyFunctionProcessor groovyFunctionProcessor;
+
+    @Autowired
     private SPELFunctionProcessor spelFunctionProcessor;
+
+    @Autowired
+    private DroolsFunctionProcessor droolsFunctionProcessor;
 
     public EntityDefinition createEntityDefiniton(EntityDefinition ed){
         return mongoTemplate.insert(ed);
@@ -77,13 +83,17 @@ public class EntityManagementServices {
         query.addCriteria(Criteria.where("entityAlias").is(alias).and("functionName").is(functionName));
         FunctionDefinition functionDefinition = mongoTemplate.findOne(query,FunctionDefinition.class);
         T instance = getEntity(alias,id);
-        getFunctionProcessor(functionDefinition).execute(instance,functionDefinition);
+        getFunctionProcessor(functionDefinition).execute(alias,instance,functionDefinition);
         return instance;
     }
 
     private FunctionProcessor getFunctionProcessor(FunctionDefinition fd){
         if(fd.getFunctionType() == FunctionDefinition.FunctionType.SPEL)
             return spelFunctionProcessor;
+        else if(fd.getFunctionType() == FunctionDefinition.FunctionType.GROOVY)
+            return groovyFunctionProcessor;
+        else if(fd.getFunctionType() == FunctionDefinition.FunctionType.DROOLS)
+            return droolsFunctionProcessor;
         return null;
     }
 

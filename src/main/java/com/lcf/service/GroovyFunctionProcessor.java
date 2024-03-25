@@ -1,24 +1,23 @@
 package com.lcf.service;
 
 import com.lcf.model.FunctionDefinition;
-import org.springframework.data.mongodb.core.query.Criteria;
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
-public class SPELFunctionProcessor implements FunctionProcessor{
+public class GroovyFunctionProcessor implements FunctionProcessor{
     @Override
     public <T> void execute(String alias, T entity, FunctionDefinition fd) {
+        Binding binding = new Binding();
+        binding.setProperty(alias,entity);
         fd.getStatement().forEach(stmt -> {
-            ExpressionParser expressionParser = new SpelExpressionParser();
-            StandardEvaluationContext context = new StandardEvaluationContext(entity);
-            Expression expression = expressionParser.parseExpression(stmt);
-            expression.getValue(context);
+            GroovyShell shell = new GroovyShell(binding);
+            shell.evaluate(stmt);
         });
     }
 }

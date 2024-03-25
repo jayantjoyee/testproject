@@ -21,6 +21,6 @@ public class FunctionDefinition {
     public static enum FunctionType{
         SPEL,
         GROOVY,
-        DRL
+        DROOLS
     }
 }
